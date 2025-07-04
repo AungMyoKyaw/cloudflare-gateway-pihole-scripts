@@ -34,29 +34,29 @@ let duplicateDomainCount = 0;
 let allowedDomainCount = 0;
 const memoizedNormalizeDomain = memoize(normalizeDomain);
 
-// Check if the blocklist.txt and allowlist.txt files exist
-for (const filename of [allowlistFilename, blocklistFilename]) {
-  if (!existsSync(filename)) {
-    console.error(`File not found: ${filename}. Please create a block/allowlist first, or run download_lists.js to download the recommended lists.`);
-    process.exit(1);
-  }
+// Check if the blocklist.txt file exists
+if (!existsSync(blocklistFilename)) {
+  console.error(`File not found: ${blocklistFilename}. Please create a blocklist first, or run download_lists.js to download the recommended lists.`);
+  process.exit(1);
 }
 
-// Read allowlist
-console.log(`Processing ${allowlistFilename}`);
-await readFile(resolve(`./${allowlistFilename}`), (line) => {
-  const _line = line.trim();
+// Read allowlist if it exists
+if (existsSync(allowlistFilename)) {
+  console.log(`Processing ${allowlistFilename}`);
+  await readFile(resolve(`./${allowlistFilename}`), (line) => {
+    const _line = line.trim();
 
-  if (!_line) return;
+    if (!_line) return;
 
-  if (isComment(_line)) return;
+    if (isComment(_line)) return;
 
-  const domain = memoizedNormalizeDomain(_line, true);
+    const domain = memoizedNormalizeDomain(_line, true);
 
-  if (!isValidDomain(domain)) return;
+    if (!isValidDomain(domain)) return;
 
-  allowlist.set(domain, 1);
-});
+    allowlist.set(domain, 1);
+  });
+}
 
 // Read blocklist
 console.log(`Processing ${blocklistFilename}`);
